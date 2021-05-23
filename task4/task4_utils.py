@@ -3,6 +3,7 @@ import tensorflow as tf
 import os
 import matplotlib.pyplot as plt
 import pandas as pd
+from datetime import datetime
 
 def code_2_path(image_code):
     image_path = os.path.join(*["data","food",str(image_code)+".jpg"])
