@@ -91,7 +91,7 @@ def train_val_dataset_from_df(train_triplets,
 
     dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
     dataset = dataset.shuffle(buffer_size=1024)
-    if target_shape==299:
+    if target_shape[0]==299:
         dataset = dataset.map(preprocess_triplets_xception)
     else:
         dataset = dataset.map(preprocess_triplets)
@@ -150,7 +150,7 @@ def hold_dataset_from_df(hold_triplets,target_shape):
     negative_dataset = tf.data.Dataset.from_tensor_slices(negative_image_paths)
 
     hold_dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
-    if target_shape==299:
+    if target_shape[0]==299:
         hold_dataset = hold_dataset.map(preprocess_triplets_xception)
     else:
         hold_dataset = hold_dataset.map(preprocess_triplets)
@@ -183,7 +183,7 @@ def test_dataset_from_df(test_triplets,target_shape):
     negative_dataset = tf.data.Dataset.from_tensor_slices(negative_image_paths)
 
     test_dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
-    if target_shape==299:
+    if target_shape[0]==299:
         test_dataset = test_dataset.map(preprocess_triplets_xception)
     else:
         test_dataset = test_dataset.map(preprocess_triplets)
