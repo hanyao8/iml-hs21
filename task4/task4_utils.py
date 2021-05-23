@@ -91,7 +91,10 @@ def train_val_dataset_from_df(train_triplets,
 
     dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
     dataset = dataset.shuffle(buffer_size=1024)
-    dataset = dataset.map(preprocess_triplets)
+    if target_shape==299:
+        dataset = dataset.map(preprocess_triplets_xception)
+    else:
+        dataset = dataset.map(preprocess_triplets)
 
     if val_frac > 1.0e-6:
         # Let's now split our dataset in train and validation.
@@ -147,7 +150,10 @@ def hold_dataset_from_df(hold_triplets,target_shape):
     negative_dataset = tf.data.Dataset.from_tensor_slices(negative_image_paths)
 
     hold_dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
-    hold_dataset = hold_dataset.map(preprocess_triplets)
+    if target_shape==299:
+        hold_dataset = hold_dataset.map(preprocess_triplets_xception)
+    else:
+        hold_dataset = hold_dataset.map(preprocess_triplets)
 
     hold_dataset = hold_dataset.batch(32, drop_remainder=False)
     hold_dataset = hold_dataset.prefetch(8)
@@ -177,7 +183,10 @@ def test_dataset_from_df(test_triplets,target_shape):
     negative_dataset = tf.data.Dataset.from_tensor_slices(negative_image_paths)
 
     test_dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
-    test_dataset = test_dataset.map(preprocess_triplets)
+    if target_shape==299:
+        test_dataset = test_dataset.map(preprocess_triplets_xception)
+    else:
+        test_dataset = test_dataset.map(preprocess_triplets)
 
     test_dataset = test_dataset.batch(32, drop_remainder=False)
     test_dataset = test_dataset.prefetch(8)
