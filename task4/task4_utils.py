@@ -246,5 +246,7 @@ def get_d_test(model,test_dataset,test_triplets):
         print(d_test)
         print(d_test[-40:])
 
+    return (d_test)
+
 
 
