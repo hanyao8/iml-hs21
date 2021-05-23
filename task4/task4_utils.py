@@ -9,7 +9,7 @@ def code_2_path(image_code):
     image_path = os.path.join(*["data","food",str(image_code)+".jpg"])
     return (image_path)
 
-def preprocess_image(filename):
+def preprocess_image(filename,target_shape=(224,224)):
     """
     Load the specified file as a JPEG image, preprocess it and
     resize it to the target shape.
@@ -18,7 +18,7 @@ def preprocess_image(filename):
     image_string = tf.io.read_file(filename)
     image = tf.image.decode_jpeg(image_string, channels=3)
     image = tf.image.convert_image_dtype(image, tf.float32)
-    image = tf.image.resize(image, TARGET_SHAPE)
+    image = tf.image.resize(image, target_shape)
     return image
 
 
@@ -34,6 +34,18 @@ def preprocess_triplets(anchor, positive, negative):
         preprocess_image(negative),
     )
 
+def preprocess_triplets_xception(anchor, positive, negative):
+    """
+    Given the filenames corresponding to the three images, load and
+    preprocess them.
+    """
+
+    xception_shape=(299,299)
+    return (
+        preprocess_image(anchor,target_shape=xception_shape),
+        preprocess_image(positive,target_shape=xception_shape),
+        preprocess_image(negative,target_shape=xception_shape),
+    )
 
 def visualize(anchor, positive, negative):
     """Visualize a few triplets from the supplied batches."""
@@ -56,7 +68,6 @@ def visualize(anchor, positive, negative):
 
 def train_val_dataset_from_df(train_triplets,
         train_dataset_size,val_frac,target_shape):
-    TARGET_SHAPE = target_shape
     shuffled_idx = np.arange(train_triplets.shape[0])
     np.random.shuffle(shuffled_idx)
 
@@ -115,7 +126,6 @@ def hold_gt_from_df(hold_triplets):
     return (y_hold_groundtruth)
 
 def hold_dataset_from_df(hold_triplets,target_shape):
-    TARGET_SHAPE = target_shape
     hold_dataset_size = hold_triplets.shape[0]
 
     image_count = hold_dataset_size
@@ -146,7 +156,6 @@ def hold_dataset_from_df(hold_triplets,target_shape):
 
 
 def test_dataset_from_df(test_triplets,target_shape):
-    TARGET_SHAPE = target_shape
     test_dataset_size = test_triplets.shape[0]
     #test_dataset_size = 1000
     image_count = test_dataset_size
