@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 def code_2_path(image_code):
-    image_path = os.path.join(*[CWD,"data","food",str(image_code)+".jpg"])
+    image_path = os.path.join(*["data","food",str(image_code)+".jpg"])
     return (image_path)
 
 def preprocess_image(filename):
