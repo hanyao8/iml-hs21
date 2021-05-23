@@ -165,3 +165,85 @@ def test_dataset_from_df(test_triplets):
 
     return (test_dataset)
 
+
+#hold pred
+def get_d_hold(model,hold_dataset,hold_triplets):
+    hold_dataset_size = hold_triplets.shape[0]
+    batch_size = 32
+    batches_to_pred = int(hold_dataset_size/batch_size + 1)
+    d_hold = np.zeros( ( hold_dataset_size,2 ) )
+
+    print(batches_to_pred)
+
+    now = datetime.now()
+    this_time = now.strftime("%m_%d_%H_%M_%S")
+    print("This Time =", this_time)
+
+    iterator = iter(hold_dataset)
+    for i in range(batches_to_pred-1):
+        sample = iterator.get_next()
+        pred = model.predict_on_batch(sample)
+        d_hold[i*batch_size:(i+1)*batch_size,0] = pred[0]
+        d_hold[i*batch_size:(i+1)*batch_size,1] = pred[1]
+        if i%200==0:
+            print(i)
+
+    now = datetime.now()
+    this_time = now.strftime("%m_%d_%H_%M_%S")
+    print("This Time =", this_time)
+
+    print("\n\n\n")
+
+    if hold_dataset_size > (batches_to_pred-1)*batch_size:
+        #last batch (size=24)
+        sample = iterator.get_next()
+        pred = model.predict_on_batch(sample)
+
+        final_start = (batches_to_pred-1)*batch_size
+        final_batch_size = sample[0].shape[0]
+
+        d_hold[final_start:final_start+final_batch_size,0] = pred[0]
+        d_hold[final_start:final_start+final_batch_size,1] = pred[1]
+
+    return (d_hold)
+
+
+#test pred
+
+def get_d_test(model,test_dataset,test_triplets):
+    test_dataset_size = test_triplets.shape[0]
+    batch_size = 32
+    batches_to_pred = int(test_dataset_size/batch_size + 1)
+    #d_test = np.zeros( ( batches_to_pred*batch_size,2 ) )
+    d_test = np.zeros( ( test_dataset_size,2 ) )
+
+    print(batches_to_pred)
+
+    iterator = iter(test_dataset)
+    for i in range(batches_to_pred-1):
+        sample = iterator.get_next()
+        pred = model.predict_on_batch(sample)
+        d_test[i*batch_size:(i+1)*batch_size,0] = pred[0]
+        d_test[i*batch_size:(i+1)*batch_size,1] = pred[1]
+        if i%200==0:
+            print(i)
+
+    print("\n\n\n")
+
+    if test_dataset_size > (batches_to_pred-1)*batch_size:
+        #last batch (size=24)
+        sample = iterator.get_next()
+        pred = model.predict_on_batch(sample)
+
+        print(d_test)
+        print(d_test[-40:])
+        final_start = (batches_to_pred-1)*batch_size
+        final_batch_size = sample[0].shape[0]
+        print(final_batch_size)
+        d_test[final_start:final_start+final_batch_size,0] = pred[0]
+        d_test[final_start:final_start+final_batch_size,1] = pred[1]
+        print(d_test)
+        print(d_test[-40:])
+
+
+
