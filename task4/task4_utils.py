@@ -15,10 +15,12 @@ def preprocess_image(filename):
     resize it to the target shape.
     """
 
+    target_shape = (300,300)
+
     image_string = tf.io.read_file(filename)
     image = tf.image.decode_jpeg(image_string, channels=3)
     image = tf.image.convert_image_dtype(image, tf.float32)
-    image = tf.image.resize(image, (224,224))
+    image = tf.image.resize(image, target_shape)
     return image
 
 
