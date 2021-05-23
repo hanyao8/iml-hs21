@@ -1,0 +1,6 @@
+init
+Current job path: /content/iml-hs21/task4/jobs/job_05_23_10_16_58
+{'HOLD_FRAC': 0.5, 'TRAIN_DATASET_SIZE': 1000, 'MODEL_CHOICE': 'siamese1', 'TRAIN_ADAM_STEP': 1e-06, 'TRAIN_EPOCHS': 1}
+{'verbose': 1, 'epochs': 1, 'steps': 25}
+Loss: [0.7848787903785706]
+Val Loss: [0.5728129148483276]
