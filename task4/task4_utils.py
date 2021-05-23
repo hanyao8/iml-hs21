@@ -15,12 +15,10 @@ def preprocess_image(filename):
     resize it to the target shape.
     """
 
-    target_shape = (300,300)
-
     image_string = tf.io.read_file(filename)
     image = tf.image.decode_jpeg(image_string, channels=3)
     image = tf.image.convert_image_dtype(image, tf.float32)
-    image = tf.image.resize(image, target_shape)
+    image = tf.image.resize(image, TARGET_SHAPE)
     return image
 
 
@@ -56,7 +54,9 @@ def visualize(anchor, positive, negative):
 
 ###
 
-def train_val_dataset_from_df(train_triplets,train_dataset_size,val_frac):
+def train_val_dataset_from_df(train_triplets,
+        train_dataset_size,val_frac,target_shape):
+    TARGET_SHAPE = target_shape
     shuffled_idx = np.arange(train_triplets.shape[0])
     np.random.shuffle(shuffled_idx)
 
@@ -114,7 +114,8 @@ def hold_gt_from_df(hold_triplets):
     y_hold_groundtruth = y_hold_groundtruth.astype(int)
     return (y_hold_groundtruth)
 
-def hold_dataset_from_df(hold_triplets):
+def hold_dataset_from_df(hold_triplets,target_shape):
+    TARGET_SHAPE = target_shape
     hold_dataset_size = hold_triplets.shape[0]
 
     image_count = hold_dataset_size
@@ -144,7 +145,8 @@ def hold_dataset_from_df(hold_triplets):
     return (hold_dataset)
 
 
-def test_dataset_from_df(test_triplets):
+def test_dataset_from_df(test_triplets,target_shape):
+    TARGET_SHAPE = target_shape
     test_dataset_size = test_triplets.shape[0]
     #test_dataset_size = 1000
     image_count = test_dataset_size
