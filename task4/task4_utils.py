@@ -54,7 +54,7 @@ def visualize(anchor, positive, negative):
 
 ###
 
-def train_val_dataset_from_df(train_triplets,train_dataset_size):
+def train_val_dataset_from_df(train_triplets,train_dataset_size,val_frac):
     shuffled_idx = np.arange(train_triplets.shape[0])
     np.random.shuffle(shuffled_idx)
 
@@ -80,18 +80,23 @@ def train_val_dataset_from_df(train_triplets,train_dataset_size):
     dataset = dataset.shuffle(buffer_size=1024)
     dataset = dataset.map(preprocess_triplets)
 
-    # Let's now split our dataset in train and validation.
-    train_dataset = dataset.take(round(image_count * 0.8))
-    val_dataset = dataset.skip(round(image_count * 0.8))
+    if val_frac > 1.0e-6:
+        # Let's now split our dataset in train and validation.
+        train_dataset = dataset.take(round(image_count * 0.8))
+        val_dataset = dataset.skip(round(image_count * 0.8))
+    
+        train_dataset = train_dataset.batch(32, drop_remainder=False)
+        train_dataset = train_dataset.prefetch(8)
+    
+        val_dataset = val_dataset.batch(32, drop_remainder=False)
+        val_dataset = val_dataset.prefetch(8)
+    
+        return (train_dataset,val_dataset)
 
-    train_dataset = train_dataset.batch(32, drop_remainder=False)
-    train_dataset = train_dataset.prefetch(8)
-
-    val_dataset = val_dataset.batch(32, drop_remainder=False)
-    val_dataset = val_dataset.prefetch(8)
-
-    return (train_dataset,val_dataset)
-
+    else:
+        dataset = dataset.batch(32, drop_remainder=False)
+        dataset = dataset.prefetch(8)
+        return (dataset)
 
 
 def hold_triplets_from_pos(pos_hold_triplets):
