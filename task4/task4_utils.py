@@ -5,47 +5,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from datetime import datetime
 
+import preprocessor
+
 def code_2_path(image_code):
     image_path = os.path.join(*["data","food",str(image_code)+".jpg"])
     return (image_path)
 
-def preprocess_image(filename,target_shape=(224,224)):
-    """
-    Load the specified file as a JPEG image, preprocess it and
-    resize it to the target shape.
-    """
-
-    image_string = tf.io.read_file(filename)
-    image = tf.image.decode_jpeg(image_string, channels=3)
-    image = tf.image.convert_image_dtype(image, tf.float32)
-    image = tf.image.resize(image, target_shape)
-    return image
-
-
-def preprocess_triplets(anchor, positive, negative):
-    """
-    Given the filenames corresponding to the three images, load and
-    preprocess them.
-    """
-
-    return (
-        preprocess_image(anchor),
-        preprocess_image(positive),
-        preprocess_image(negative),
-    )
-
-def preprocess_triplets_xception(anchor, positive, negative):
-    """
-    Given the filenames corresponding to the three images, load and
-    preprocess them.
-    """
-
-    xception_shape=(299,299)
-    return (
-        preprocess_image(anchor,target_shape=xception_shape),
-        preprocess_image(positive,target_shape=xception_shape),
-        preprocess_image(negative,target_shape=xception_shape),
-    )
 
 def visualize(anchor, positive, negative):
     """Visualize a few triplets from the supplied batches."""
@@ -91,10 +56,9 @@ def train_val_dataset_from_df(train_triplets,
 
     dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
     dataset = dataset.shuffle(buffer_size=1024)
-    if target_shape[0]==299:
-        dataset = dataset.map(preprocess_triplets_xception)
-    else:
-        dataset = dataset.map(preprocess_triplets)
+
+    prep = preprocessor.Preprocessor(target_size=target_size)
+    dataset = dataset.map(prep.preprocess_triplets)
 
     if val_frac > 1.0e-6:
         # Let's now split our dataset in train and validation.
@@ -150,10 +114,9 @@ def hold_dataset_from_df(hold_triplets,target_shape):
     negative_dataset = tf.data.Dataset.from_tensor_slices(negative_image_paths)
 
     hold_dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
-    if target_shape[0]==299:
-        hold_dataset = hold_dataset.map(preprocess_triplets_xception)
-    else:
-        hold_dataset = hold_dataset.map(preprocess_triplets)
+
+    prep = preprocessor.Preprocessor(target_size=target_size)
+    hold_dataset = hold_dataset.map(prep.preprocess_triplets)
 
     hold_dataset = hold_dataset.batch(32, drop_remainder=False)
     hold_dataset = hold_dataset.prefetch(8)
@@ -183,10 +146,9 @@ def test_dataset_from_df(test_triplets,target_shape):
     negative_dataset = tf.data.Dataset.from_tensor_slices(negative_image_paths)
 
     test_dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
-    if target_shape[0]==299:
-        test_dataset = test_dataset.map(preprocess_triplets_xception)
-    else:
-        test_dataset = test_dataset.map(preprocess_triplets)
+
+    prep = preprocessor.Preprocessor(target_size=target_size)
+    test_dataset = test_dataset.map(prep.preprocess_triplets)
 
     test_dataset = test_dataset.batch(32, drop_remainder=False)
     test_dataset = test_dataset.prefetch(8)
