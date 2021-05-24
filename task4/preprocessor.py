@@ -2,8 +2,10 @@ import tensorflow as tf
 import os
 
 class Preprocessor():
-    def __init__(self,target_shape):
+    def __init__(self,
+            target_shape,batch_size):
         self.target_shape = target_shape
+        self.batch_size = batch_size
 
     def preprocess_image(self,filename):
         """

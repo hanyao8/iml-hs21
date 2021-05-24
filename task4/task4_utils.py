@@ -32,7 +32,7 @@ def visualize(anchor, positive, negative):
 ###
 
 def train_val_dataset_from_df(train_triplets,
-        train_dataset_size,val_frac,target_shape):
+        train_dataset_size,val_frac,prep):
     shuffled_idx = np.arange(train_triplets.shape[0])
     np.random.shuffle(shuffled_idx)
 
@@ -57,7 +57,6 @@ def train_val_dataset_from_df(train_triplets,
     dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
     dataset = dataset.shuffle(buffer_size=1024)
 
-    prep = preprocessor.Preprocessor(target_shape=target_shape)
     dataset = dataset.map(prep.preprocess_triplets)
 
     if val_frac > 1.0e-6:
@@ -65,16 +64,16 @@ def train_val_dataset_from_df(train_triplets,
         train_dataset = dataset.take(round(image_count * 0.8))
         val_dataset = dataset.skip(round(image_count * 0.8))
     
-        train_dataset = train_dataset.batch(32, drop_remainder=False)
+        train_dataset = train_dataset.batch(prep.batch_size, drop_remainder=False)
         train_dataset = train_dataset.prefetch(8)
     
-        val_dataset = val_dataset.batch(32, drop_remainder=False)
+        val_dataset = val_dataset.batch(prep.batch_size, drop_remainder=False)
         val_dataset = val_dataset.prefetch(8)
     
         return (train_dataset,val_dataset)
 
     else:
-        dataset = dataset.batch(32, drop_remainder=False)
+        dataset = dataset.batch(prep.batch_size, drop_remainder=False)
         dataset = dataset.prefetch(8)
         return (dataset)
 
@@ -92,7 +91,7 @@ def hold_gt_from_df(hold_triplets):
     y_hold_groundtruth = y_hold_groundtruth.astype(int)
     return (y_hold_groundtruth)
 
-def hold_dataset_from_df(hold_triplets,target_shape):
+def hold_dataset_from_df(hold_triplets,prep):
     hold_dataset_size = hold_triplets.shape[0]
 
     image_count = hold_dataset_size
@@ -115,16 +114,15 @@ def hold_dataset_from_df(hold_triplets,target_shape):
 
     hold_dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
 
-    prep = preprocessor.Preprocessor(target_shape=target_shape)
     hold_dataset = hold_dataset.map(prep.preprocess_triplets)
 
-    hold_dataset = hold_dataset.batch(32, drop_remainder=False)
+    hold_dataset = hold_dataset.batch(prep.batch_size, drop_remainder=False)
     hold_dataset = hold_dataset.prefetch(8)
 
     return (hold_dataset)
 
 
-def test_dataset_from_df(test_triplets,target_shape):
+def test_dataset_from_df(test_triplets,prep):
     test_dataset_size = test_triplets.shape[0]
     #test_dataset_size = 1000
     image_count = test_dataset_size
@@ -147,34 +145,29 @@ def test_dataset_from_df(test_triplets,target_shape):
 
     test_dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
 
-    prep = preprocessor.Preprocessor(target_shape=target_shape)
     test_dataset = test_dataset.map(prep.preprocess_triplets)
 
-    test_dataset = test_dataset.batch(32, drop_remainder=False)
+    test_dataset = test_dataset.batch(prep.batch_size, drop_remainder=False)
     test_dataset = test_dataset.prefetch(8)
 
     return (test_dataset)
 
 
-#hold pred
-def get_d_hold(model,hold_dataset,hold_triplets):
-    hold_dataset_size = hold_triplets.shape[0]
-    batch_size = 32
-    batches_to_pred = int(hold_dataset_size/batch_size + 1)
-    d_hold = np.zeros( ( hold_dataset_size,2 ) )
-
-    print(batches_to_pred)
+def get_d(model,dataset,dataset_size,prep):
+    batch_size = prep.batch_size
+    n_full_batches = int(dataset_size/batch_size)
+    d = np.zeros( ( dataset_size,2 ) )
 
     now = datetime.now()
     this_time = now.strftime("%m_%d_%H_%M_%S")
     print("This Time =", this_time)
 
-    iterator = iter(hold_dataset)
-    for i in range(batches_to_pred-1):
+    iterator = iter(dataset)
+    for i in range(n_full_batches):
         sample = iterator.get_next()
         pred = model.predict_on_batch(sample)
-        d_hold[i*batch_size:(i+1)*batch_size,0] = pred[0]
-        d_hold[i*batch_size:(i+1)*batch_size,1] = pred[1]
+        d[i*batch_size:(i+1)*batch_size,0] = pred[0]
+        d[i*batch_size:(i+1)*batch_size,1] = pred[1]
         if i%200==0:
             print(i)
 
@@ -184,58 +177,24 @@ def get_d_hold(model,hold_dataset,hold_triplets):
 
     print("\n\n\n")
 
-    if hold_dataset_size > (batches_to_pred-1)*batch_size:
+    if dataset_size > n_full_batches*batch_size:
         #last batch (size=24)
         sample = iterator.get_next()
         pred = model.predict_on_batch(sample)
 
-        final_start = (batches_to_pred-1)*batch_size
-        final_batch_size = sample[0].shape[0]
-
-        d_hold[final_start:final_start+final_batch_size,0] = pred[0]
-        d_hold[final_start:final_start+final_batch_size,1] = pred[1]
-
-    return (d_hold)
-
-
-#test pred
-
-def get_d_test(model,test_dataset,test_triplets):
-    test_dataset_size = test_triplets.shape[0]
-    batch_size = 32
-    batches_to_pred = int(test_dataset_size/batch_size + 1)
-    #d_test = np.zeros( ( batches_to_pred*batch_size,2 ) )
-    d_test = np.zeros( ( test_dataset_size,2 ) )
-
-    print(batches_to_pred)
-
-    iterator = iter(test_dataset)
-    for i in range(batches_to_pred-1):
-        sample = iterator.get_next()
-        pred = model.predict_on_batch(sample)
-        d_test[i*batch_size:(i+1)*batch_size,0] = pred[0]
-        d_test[i*batch_size:(i+1)*batch_size,1] = pred[1]
-        if i%200==0:
-            print(i)
-
-    print("\n\n\n")
-
-    if test_dataset_size > (batches_to_pred-1)*batch_size:
-        #last batch (size=24)
-        sample = iterator.get_next()
-        pred = model.predict_on_batch(sample)
-
-        print(d_test)
-        print(d_test[-40:])
-        final_start = (batches_to_pred-1)*batch_size
+        print(d)
+        print(d[-40:])
+        final_start = n_full_batches*batch_size
         final_batch_size = sample[0].shape[0]
         print(final_batch_size)
-        d_test[final_start:final_start+final_batch_size,0] = pred[0]
-        d_test[final_start:final_start+final_batch_size,1] = pred[1]
-        print(d_test)
-        print(d_test[-40:])
+        d[final_start:final_start+final_batch_size,0] = pred[0]
+        d[final_start:final_start+final_batch_size,1] = pred[1]
+        print(d)
+        print(d[-40:])
 
-    return (d_test)
+    return (d)
+
+
 
 
 
