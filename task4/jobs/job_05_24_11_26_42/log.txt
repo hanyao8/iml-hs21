@@ -1,0 +1,3 @@
+init
+Current job path: /content/iml-hs21/task4/jobs/job_05_24_11_26_42
+{'HOLD_FRAC': 0.1, 'TRAIN_DATASET_SIZE': 'default', 'MODEL_CHOICE': 'siamese_mobilenet_dot', 'TRAIN_ADAM_STEP': 5e-07, 'TRAIN_EPOCHS': 10}
