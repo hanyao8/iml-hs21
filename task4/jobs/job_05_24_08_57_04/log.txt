@@ -1,0 +1,8 @@
+init
+Current job path: /content/iml-hs21/task4/jobs/job_05_24_08_57_04
+{'HOLD_FRAC': 0.5, 'TRAIN_DATASET_SIZE': 'no_hold', 'MODEL_CHOICE': 'siamese_xception2', 'TRAIN_ADAM_STEP': 5e-07, 'TRAIN_EPOCHS': 10}
+Current job path: /content/iml-hs21/task4/jobs/job_05_24_08_57_04
+{'HOLD_FRAC': 0.5, 'TRAIN_DATASET_SIZE': 'default', 'MODEL_CHOICE': 'siamese_xception2', 'TRAIN_ADAM_STEP': 5e-07, 'TRAIN_EPOCHS': 10}
+Current job path: /content/iml-hs21/task4/jobs/job_05_24_08_57_04
+{'HOLD_FRAC': 0.5, 'TRAIN_DATASET_SIZE': 'default', 'MODEL_CHOICE': 'siamese_xception_2', 'TRAIN_ADAM_STEP': 5e-07, 'TRAIN_EPOCHS': 10}
+Current job path: /content/iml-hs21/task4/jobs/job_05_24_08_57_04
