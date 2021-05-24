@@ -57,7 +57,7 @@ def train_val_dataset_from_df(train_triplets,
     dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
     dataset = dataset.shuffle(buffer_size=1024)
 
-    prep = preprocessor.Preprocessor(target_size=target_size)
+    prep = preprocessor.Preprocessor(target_shape=target_shape)
     dataset = dataset.map(prep.preprocess_triplets)
 
     if val_frac > 1.0e-6:
@@ -115,7 +115,7 @@ def hold_dataset_from_df(hold_triplets,target_shape):
 
     hold_dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
 
-    prep = preprocessor.Preprocessor(target_size=target_size)
+    prep = preprocessor.Preprocessor(target_shape=target_shape)
     hold_dataset = hold_dataset.map(prep.preprocess_triplets)
 
     hold_dataset = hold_dataset.batch(32, drop_remainder=False)
@@ -147,7 +147,7 @@ def test_dataset_from_df(test_triplets,target_shape):
 
     test_dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
 
-    prep = preprocessor.Preprocessor(target_size=target_size)
+    prep = preprocessor.Preprocessor(target_shape=target_shape)
     test_dataset = test_dataset.map(prep.preprocess_triplets)
 
     test_dataset = test_dataset.batch(32, drop_remainder=False)
