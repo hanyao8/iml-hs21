@@ -178,9 +178,9 @@ def create_siamese_xception_dot():
     flatten = layers.Flatten()(feature_cnn.output)
     embedding = Model(feature_cnn.input,flatten,name="Embedding")
 
-    anchor_input = layers.Input(name="anchor", shape=MOBILENET_INPUT_SHAPE)
-    positive_input = layers.Input(name="positive", shape=MOBILENET_INPUT_SHAPE)
-    negative_input = layers.Input(name="negative", shape=MOBILENET_INPUT_SHAPE)
+    anchor_input = layers.Input(name="anchor", shape=XCEPTION_INPUT_SHAPE)
+    positive_input = layers.Input(name="positive", shape=XCEPTION_INPUT_SHAPE)
+    negative_input = layers.Input(name="negative", shape=XCEPTION_INPUT_SHAPE)
 
     anchor_embedding = embedding(anchor_input)
     positive_embedding = embedding(positive_input)
