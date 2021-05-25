@@ -115,3 +115,40 @@ def create_siamese_xception():
     return (siamese_network)
 
 
+def create_siamese_mobilenet_dot_2():
+    feature_cnn = MobileNetV2(weights="imagenet",
+                              input_shape=MOBILENET_INPUT_SHAPE,
+                              include_top=True)
+
+    trainable_layer_names = ["Conv_1","predictions"]
+    for layer in feature_cnn.layers:
+        if layer.name in trainable_layer_names:
+            layer.trainable = True
+        else:
+            layer.trainable = False
+
+    print("Trainable check:")
+    for layer in feature_cnn.layers:
+        print(layer.name)
+        print(layer.trainable)
+        print("\n")
+
+    flatten = layers.Flatten()(feature_cnn.output)
+    embedding = Model(feature_cnn.input,flatten,name="Embedding")
+
+    anchor_input = layers.Input(name="anchor", shape=MOBILENET_INPUT_SHAPE)
+    positive_input = layers.Input(name="positive", shape=MOBILENET_INPUT_SHAPE)
+    negative_input = layers.Input(name="negative", shape=MOBILENET_INPUT_SHAPE)
+
+    anchor_embedding = embedding(anchor_input)
+    positive_embedding = embedding(positive_input)
+    negative_embedding = embedding(negative_input)
+
+    ap_dot = layers.Dot(axes=1)([anchor_embedding,positive_embedding])
+    an_dot = layers.Dot(axes=1)([anchor_embedding,negative_embedding])
+
+    siamese_network = Model(
+    inputs=[anchor_input, positive_input, negative_input], outputs=(1.0-ap_dot,1.0-an_dot))
+
+    return (siamese_network)
+
