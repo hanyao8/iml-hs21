@@ -166,8 +166,8 @@ def get_d(model,dataset,dataset_size,prep):
     for i in range(n_full_batches):
         sample = iterator.get_next()
         pred = model.predict_on_batch(sample)
-        d[i*batch_size:(i+1)*batch_size,0] = pred[0]
-        d[i*batch_size:(i+1)*batch_size,1] = pred[1]
+        d[i*batch_size:(i+1)*batch_size,0] = pred[0].flatten()
+        d[i*batch_size:(i+1)*batch_size,1] = pred[1].flatten()
         if i%200==0:
             print(i)
 
@@ -187,8 +187,8 @@ def get_d(model,dataset,dataset_size,prep):
         final_start = n_full_batches*batch_size
         final_batch_size = sample[0].shape[0]
         print(final_batch_size)
-        d[final_start:final_start+final_batch_size,0] = pred[0]
-        d[final_start:final_start+final_batch_size,1] = pred[1]
+        d[final_start:final_start+final_batch_size,0] = pred[0].flatten()
+        d[final_start:final_start+final_batch_size,1] = pred[1].flatten()
         print(d)
         print(d[-40:])
 
