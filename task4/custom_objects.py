@@ -15,6 +15,13 @@ class DistanceLayer(layers.Layer):
         an_distance = tf.reduce_sum(tf.square(anchor - negative), -1)
         return (ap_distance, an_distance)
 
+class NDotLayer(layers.Layer):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+    def call(self, anchor, positive, negative):
+        ap_ndot = tf.reduce_sum(tf.multiply(anchor,positive),-1)
+        an_ndot = tf.reduce_sum(tf.multiply(anchor,negative),-1)
+        return (ap_ndot, an_ndot)
 
 class SiameseModel(Model):
     """
