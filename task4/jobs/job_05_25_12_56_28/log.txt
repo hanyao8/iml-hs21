@@ -1,0 +1,10 @@
+init
+Current job path: /content/iml-hs21/task4/jobs/job_05_25_12_56_28
+{'HOLD_FRAC': 0.01, 'TRAIN_DATASET_SIZE': 'no_hold', 'MODEL_CHOICE': 'siamese_mobilenet_dot_2', 'TRAIN_ADAM_STEP': 1e-06, 'TRAIN_EPOCHS': 10}
+Current job path: /content/iml-hs21/task4/jobs/job_05_25_12_56_28
+Current job path: /content/iml-hs21/task4/jobs/job_05_25_12_56_28
+Current job path: /content/iml-hs21/task4/jobs/job_05_25_12_56_28
+{'HOLD_FRAC': 0.01, 'TRAIN_DATASET_SIZE': 1000, 'MODEL_CHOICE': 'siamese_mobilenet_dot_2', 'TRAIN_ADAM_STEP': 1e-06, 'TRAIN_EPOCHS': 1}
+{'verbose': 1, 'epochs': 1, 'steps': 800}
+Loss: [0.9904114007949829]
+Val Loss: [0.9887521266937256]
