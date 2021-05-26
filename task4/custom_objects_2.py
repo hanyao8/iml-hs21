@@ -148,9 +148,9 @@ class SiameseModel5(Model):
         #n_y_true = tf.cast(tf.size(tf.reshape(y_true,[-1])),tf.float32)
         #acc = (n_y_true-abs_diff_sum)/n_y_true
 
-        self.acc.reset_state()
-        self.acc.update_state([y_pred,y_true])
-        acc = self.acc.result()
+        self.acc_op.reset_state()
+        self.acc_op.update_state([y_pred,y_true])
+        acc = self.acc_op.result()
         return acc
 
     @property
