@@ -10,6 +10,8 @@ from keras.applications import xception
 if keras.__version__=="2.5.0":
     from keras.applications.mobilenet_v2 import MobileNetV2
     from keras.applications.xception import Xception
+    from tensorflow.python.framework.ops import disable_eager_execution
+    disable_eager_execution()
 else:
     from keras.applications import MobileNetV2
     from keras.applications import Xception
