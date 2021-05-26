@@ -5,11 +5,14 @@ from tensorflow.keras import layers
 from tensorflow.keras import metrics
 from keras.models import Model
 
-from keras.applications import MobileNetV2
 from keras.applications import mobilenet
-
-from keras.applications import Xception
 from keras.applications import xception
+if keras.__version__="2.5.0":
+    from keras.applications.mobilenet_v2 import MobileNetV2
+    from keras.applications.xception import Xception
+else:
+    from keras.applications import MobileNetV2
+    from keras.applications import Xception
 
 import custom_objects
 
