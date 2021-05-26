@@ -149,11 +149,11 @@ class SiameseModel5(Model):
         #acc = (n_y_true-abs_diff_sum)/n_y_true
 
         self.acc_op.reset_state()
-        self.acc_op.update_state([y_pred,y_true])
+        self.acc_op.update_state(y_true,y_pred)
         acc = self.acc_op.result()
         return acc
 
     @property
     def metrics(self):
         return [self.loss_tracker,self.acc_tracker,
-                self.triplet_loss_tracker,self.binary_loss_tracker]
+         .       self.triplet_loss_tracker,self.binary_loss_tracker]
