@@ -40,6 +40,7 @@ class SiameseModel5(Model):
 
         self.using_labels = True
         self.bce_op = tf.keras.losses.BinaryCrossentropy()
+        self.acc_op = tf.keras.metrics.Accuracy()
         self.loss_tracker = metrics.Mean(name="loss")
         self.triplet_loss_tracker = metrics.Mean(name="triplet_loss")
         self.binary_loss_tracker = metrics.Mean(name="binary_loss")
@@ -57,7 +58,7 @@ class SiameseModel5(Model):
         with tf.GradientTape() as tape:
             ap_distance, an_distance = self.siamese_network(x)
             d_pred = (ap_distance,an_distance)
-            triplet_loss = self._compute_triplet_loss(d_pred)
+            triplet_loss = self._compute_triplet_loss(d_pred,y)
             binary_loss = self._compute_binary_loss(d_pred,y)
             loss = self._compute_loss(triplet_loss,binary_loss)
 
@@ -88,14 +89,14 @@ class SiameseModel5(Model):
         ap_distance, an_distance = self.siamese_network(x)
         d_pred = (ap_distance,an_distance)
 
-        triplet_loss = self._compute_triplet_loss(d_pred)
+        triplet_loss = self._compute_triplet_loss(d_pred,y)
         binary_loss = self._compute_binary_loss(d_pred,y)
         loss = self._compute_loss(triplet_loss,binary_loss)
         acc = self._compute_acc(d_pred,y)
 
         self.loss_tracker.update_state(loss)
         self.acc_tracker.update_state(acc)
-        self.triplet_loss_tracker.update_state(trplet_loss)
+        self.triplet_loss_tracker.update_state(triplet_loss)
         self.binary_loss_tracker.update_state(binary_loss)
         return {"loss": self.loss_tracker.result(),
                 "acc": self.acc_tracker.result(),
@@ -104,10 +105,14 @@ class SiameseModel5(Model):
                 }
 
 
-    def _compute_triplet_loss(self,d_pred):
+    def _compute_triplet_loss(self,d_pred,y_true):
         an_distance,ap_distance = d_pred
         triplet_loss = ap_distance - an_distance
         triplet_loss = tf.maximum(triplet_loss + self.margin, 0.0)
+
+        y_true = tf.cast(y_true,tf.float32)
+        triplet_loss = tf.math.multiply(triplet_loss,y_true)
+
         return triplet_loss
 
     def _compute_binary_loss(self,d_pred,y_true):
@@ -126,11 +131,17 @@ class SiameseModel5(Model):
         y_pred = an_distance - ap_distance
         y_pred = tf.math.sign(y_pred)
         y_pred = tf.maximum(y_pred,0.0)
+        y_pred = tf.cast(y_pred,tf.int8)
 
-        y_true = tf.cast(y_true,tf.float32)
-        abs_diff_sum = tf.math.reduce_sum(tf.math.abs(y_pred-y_true))
-        n_y_true = tf.cast(tf.size(tf.reshape(y_true,[-1])),tf.float32)
-        acc = (n_y_true-abs_diff_sum)/n_y_true
+        y_true = tf.cast(y_true,tf.int8)
+
+        #abs_diff_sum = tf.math.reduce_sum(tf.math.abs(y_pred-y_true))
+        #n_y_true = tf.cast(tf.size(tf.reshape(y_true,[-1])),tf.float32)
+        #acc = (n_y_true-abs_diff_sum)/n_y_true
+
+        self.acc.reset_state()
+        self.acc.update_state([y_pred,y_true])
+        acc = self.acc.result()
         return acc
 
     @property
