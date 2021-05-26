@@ -31,7 +31,7 @@ def visualize(anchor, positive, negative):
 
 ###
 
-def train_val_dataset_from_df(train_triplets,
+def train_val_dataset_from_df(train_triplets,y_train_groundtruth,
         train_dataset_size,val_frac,prep):
     shuffled_idx = np.arange(train_triplets.shape[0])
     np.random.shuffle(shuffled_idx)
@@ -53,8 +53,10 @@ def train_val_dataset_from_df(train_triplets,
     anchor_dataset = tf.data.Dataset.from_tensor_slices(anchor_image_paths)
     positive_dataset = tf.data.Dataset.from_tensor_slices(positive_image_paths)
     negative_dataset = tf.data.Dataset.from_tensor_slices(negative_image_paths)
+    y_dataset = tf.data.Dataset.from_tensor_slices(y_train_groundtruth)
 
     dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
+    dataset = tf.data.Dataset.zip((dataset,y_dataset))
     dataset = dataset.shuffle(buffer_size=1024)
 
     dataset = dataset.map(prep.preprocess_triplets)
@@ -78,18 +80,18 @@ def train_val_dataset_from_df(train_triplets,
         return (dataset)
 
 
-def hold_triplets_from_pos(pos_hold_triplets):
-    neg_hold_triplets = pos_hold_triplets.copy()
-    neg_hold_triplets[1] = pos_hold_triplets[2]
-    neg_hold_triplets[2] = pos_hold_triplets[1]
-    hold_triplets = pd.concat([pos_hold_triplets,neg_hold_triplets])
-    return (hold_triplets)
+def triplets_from_pos(pos_triplets):
+    neg_triplets = pos_triplets.copy()
+    neg_triplets[1] = pos_triplets[2]
+    neg_triplets[2] = pos_triplets[1]
+    triplets = pd.concat([pos_triplets,neg_triplets])
+    return (triplets)
 
-def hold_gt_from_df(hold_triplets):
-    y_hold_groundtruth = np.zeros(hold_triplets.shape[0])
-    y_hold_groundtruth[:int(hold_triplets.shape[0]/2)] = 1
-    y_hold_groundtruth = y_hold_groundtruth.astype(int)
-    return (y_hold_groundtruth)
+def gt_from_df(triplets):
+    y_groundtruth = np.zeros(triplets.shape[0])
+    y_groundtruth[:int(triplets.shape[0]/2)] = 1
+    y_groundtruth = y_groundtruth.astype(int)
+    return (y_groundtruth)
 
 def hold_dataset_from_df(hold_triplets,prep):
     hold_dataset_size = hold_triplets.shape[0]
