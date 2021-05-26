@@ -31,8 +31,8 @@ def visualize(anchor, positive, negative):
 
 ###
 
-def train_val_dataset_from_df(train_triplets,y_train_groundtruth,
-        train_dataset_size,val_frac,prep):
+def train_val_dataset_from_df(train_triplets,y_train_groundtruth=[],
+        train_dataset_size=0,val_frac=0.2,prep=None):
     shuffled_idx = np.arange(train_triplets.shape[0])
     np.random.shuffle(shuffled_idx)
 
@@ -53,13 +53,18 @@ def train_val_dataset_from_df(train_triplets,y_train_groundtruth,
     anchor_dataset = tf.data.Dataset.from_tensor_slices(anchor_image_paths)
     positive_dataset = tf.data.Dataset.from_tensor_slices(positive_image_paths)
     negative_dataset = tf.data.Dataset.from_tensor_slices(negative_image_paths)
-    y_dataset = tf.data.Dataset.from_tensor_slices(y_train_groundtruth)
-
     dataset = tf.data.Dataset.zip((anchor_dataset, positive_dataset, negative_dataset))
-    dataset = tf.data.Dataset.zip((dataset,y_dataset))
+
+    if prep.multitask:
+        y_dataset = tf.data.Dataset.from_tensor_slices(y_train_groundtruth)
+        dataset = tf.data.Dataset.zip((dataset,y_dataset))
+
     dataset = dataset.shuffle(buffer_size=1024)
 
-    dataset = dataset.map(prep.preprocess_triplets)
+    if prep.multitask:
+        dataset = dataset.map(prep.preprocess_triplets_mt)
+    else:
+        dataset = dataset.map(prep.preprocess_triplets)
 
     if val_frac > 1.0e-6:
         # Let's now split our dataset in train and validation.

@@ -3,9 +3,10 @@ import os
 
 class Preprocessor():
     def __init__(self,
-            target_shape,batch_size):
+            target_shape,batch_size,multitask):
         self.target_shape = target_shape
         self.batch_size = batch_size
+        self.multitask = multitask
 
     def preprocess_image(self,filename):
         """
@@ -25,5 +26,9 @@ class Preprocessor():
             self.preprocess_image(positive),
             self.preprocess_image(negative),
         )
+
+    def preprocess_triplets_mt(self,x,y):
+        a,p,n = self.preprocess_triplets(x[0],x[1].x[2])
+        return ((a,p,n),y)
 
 
