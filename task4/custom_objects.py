@@ -157,8 +157,10 @@ class SiameseModel3(Model):
             x = data
 
         with tf.GradientTape() as tape:
-            triplet_loss = self._compute_triplet_loss(x)
-            binary_loss = self._compute_binary_loss(x)
+            ap_distance, an_distance = self.siamese_network(x)
+            d_pred = (ap_distance,an_distance)
+            triplet_loss = self._compute_triplet_loss(d_pred)
+            binary_loss = self._compute_binary_loss(d_pred,y)
             loss = self._compute_loss(triplet_loss,binary_loss)
 
         acc = self._compute_acc(x)
@@ -185,10 +187,13 @@ class SiameseModel3(Model):
         else:
             x = data
 
-        triplet_loss = self._compute_triplet_loss(x)
-        binary_loss = self._compute_binary_loss(x)
+        ap_distance, an_distance = self.siamese_network(x)
+        d_pred = (ap_distance,an_distance)
+
+        triplet_loss = self._compute_triplet_loss(d_pred)
+        binary_loss = self._compute_binary_loss(d_pred,y)
         loss = self._compute_loss(triplet_loss,binary_loss)
-        acc = self._compute_acc(x)
+        acc = self._compute_acc(d_pred,y)
 
         self.loss_tracker.update_state(loss)
         self.acc_tracker.update_state(acc)
@@ -201,44 +206,32 @@ class SiameseModel3(Model):
                 }
 
 
-    def _compute_triplet_loss(self,data):
-        if self.using_labels:
-            x,y = data
-        else:
-            x = data
-        ap_distance, an_distance = self.siamese_network(x)
+    def _compute_triplet_loss(self,d_pred):
+        an_distance,ap_distance = d_pred
         triplet_loss = ap_distance - an_distance
         triplet_loss = tf.maximum(triplet_loss + self.margin, 0.0)
         return triplet_loss
 
-    def _compute_binary_loss(self,data):
-        if self.using_labels:
-            x,y = data
-        else:
-            x = data
-        ap_distance, an_distance = self.siamese_network(x)
+    def _compute_binary_loss(self,d_pred,y_true):
+        an_distance,ap_distance = d_pred
         Z = tf.math.exp(-1.0*an_distance)+tf.math.exp(-1.0*ap_distance)
         phat = tf.math.exp(-1.0*an_distance)/Z
-        bce = self.bce_op(y,phat)
+        bce = self.bce_op(y_true,phat)
         return bce
 
     def _compute_loss(self, triplet_loss, binary_loss):
         loss = self.lambda_1*triplet_loss + self.lambda_2*binary_loss
         return loss
 
-    def _compute_acc(self, data):
-        if self.using_labels:
-            x,y = data
-        else:
-            x = data
-        ap_distance, an_distance = self.siamese_network(x)
+    def _compute_acc(self, d_pred, y_true):
+        an_distance,ap_distance = d_pred
         y_pred = an_distance - ap_distance
         y_pred = tf.math.sign(y_pred)
         y_pred = tf.maximum(y_pred,0.0)
 
-        abs_diff_sum = tf.math.reduce_sum(tf.math.abs(y_pred-y))
-        n_y = tf.size(tf.reshape(y,[-1]))
-        acc = (n_y-abs_diff_sum)/n_y
+        abs_diff_sum = tf.math.reduce_sum(tf.math.abs(y_pred-y_true))
+        n_y_true = tf.size(tf.reshape(y_true,[-1]))
+        acc = (n_y_true-abs_diff_sum)/n_y_true
         return acc
 
     @property
