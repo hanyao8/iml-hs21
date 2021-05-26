@@ -71,7 +71,7 @@ class SiameseModel5(Model):
 
         self.loss_tracker.update_state(loss)
         self.acc_tracker.update_state(acc)
-        self.triplet_loss_tracker.update_state(trplet_loss)
+        self.triplet_loss_tracker.update_state(triplet_loss)
         self.binary_loss_tracker.update_state(binary_loss)
         return {"loss": self.loss_tracker.result(),
                 "acc": self.acc_tracker.result(),
