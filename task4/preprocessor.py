@@ -28,7 +28,7 @@ class Preprocessor():
         )
 
     def preprocess_triplets_mt(self,x,y):
-        a,p,n = self.preprocess_triplets(x[0],x[1].x[2])
+        a,p,n = self.preprocess_triplets(x[0],x[1],x[2])
         return ((a,p,n),y)
 
 
