@@ -7,7 +7,7 @@ from keras.models import Model
 
 from keras.applications import mobilenet
 from keras.applications import xception
-if keras.__version__="2.5.0":
+if keras.__version__=="2.5.0":
     from keras.applications.mobilenet_v2 import MobileNetV2
     from keras.applications.xception import Xception
 else:
