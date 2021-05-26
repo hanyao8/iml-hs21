@@ -127,6 +127,7 @@ class SiameseModel5(Model):
         y_pred = tf.math.sign(y_pred)
         y_pred = tf.maximum(y_pred,0.0)
 
+        y_true = tf.cast(y_true,tf.float32)
         abs_diff_sum = tf.math.reduce_sum(tf.math.abs(y_pred-y_true))
         n_y_true = tf.size(tf.reshape(y_true,[-1]))
         acc = (n_y_true-abs_diff_sum)/n_y_true
