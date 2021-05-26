@@ -156,4 +156,4 @@ class SiameseModel5(Model):
     @property
     def metrics(self):
         return [self.loss_tracker,self.acc_tracker,
-         .       self.triplet_loss_tracker,self.binary_loss_tracker]
+                self.triplet_loss_tracker,self.binary_loss_tracker]
