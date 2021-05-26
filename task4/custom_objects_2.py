@@ -47,7 +47,16 @@ class SiameseModel5(Model):
         self.acc_tracker = metrics.Mean(name="acc")
 
     def call(self, inputs):
-        return self.siamese_network(inputs)
+        if len(inputs) == 2:
+            return self.siamese_network(inputs[0])
+        elif len(inputs) == 3:
+            return self.siamese_network(inputs)
+        elif len(inputs) == 4:
+            return self.siamese_network(
+                    (inputs[0],inputs[1],inputs[2])
+                    )
+        else:
+            raise(Exception)
 
     def train_step(self, data):
         if self.using_labels:
