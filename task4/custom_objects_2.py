@@ -61,7 +61,7 @@ class SiameseModel5(Model):
             binary_loss = self._compute_binary_loss(d_pred,y)
             loss = self._compute_loss(triplet_loss,binary_loss)
 
-        acc = self._compute_acc(x)
+        acc = self._compute_acc(d_pred,y)
 
         gradients = tape.gradient(loss, self.siamese_network.trainable_weights)
 
