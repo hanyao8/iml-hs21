@@ -225,6 +225,42 @@ def create_siamese_mobilenet_dot_4():
     return (siamese_network)
 
 
+def create_siamese_mobilenet_dot_5():
+    feature_cnn_1 = MobileNetV2(weights="imagenet",
+                              input_shape=MOBILENET_INPUT_SHAPE,
+                              include_top=True)
+    
+    feature_cnn_2 = MobileNetV2(weights="imagenet",
+                              input_shape=MOBILENET_INPUT_SHAPE,
+                              include_top=True)
+    
+    feature_cnn_3 = MobileNetV2(weights="imagenet",
+                              input_shape=MOBILENET_INPUT_SHAPE,
+                              include_top=True)
+    
+    feature_cnns = [feature_cnn_1,feature_cnn_2,feature_cnn_3]
+    feature_cnn_names = ["anchor","pos","neg"]
+    trainable_layer_names = ["Conv_1","predictions"]
+    for cnn in feature_cnns:
+        for layer in cnn.layers:
+            if layer.name in trainable_layer_names:
+                layer.trainable = True
+            else:
+                layer.trainable = False
+    for i in range(len(feature_cnns)):
+        for layer in feature_cnns[i].layers:
+            layer._name = layer.name + "_" + feature_cnn_names[i]
+    
+    ap_dot = layers.Dot(axes=1)([feature_cnn_1.output,feature_cnn_2.output])
+    an_dot = layers.Dot(axes=1)([feature_cnn_1.output,feature_cnn_3.output])
+    
+    siamese_network = Model(
+        inputs=[feature_cnn_1.input,
+                feature_cnn_2.input,
+                feature_cnn_3.input
+                ], outputs=(1.0-ap_dot,1.0-an_dot))
+    return (siamese_network)
+
 def create_siamese_xception_dot():
 
     feature_cnn = Xception(weights="imagenet",
