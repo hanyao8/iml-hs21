@@ -59,7 +59,8 @@ def train_val_dataset_from_df(train_triplets,y_train_groundtruth=[],
         y_dataset = tf.data.Dataset.from_tensor_slices(y_train_groundtruth)
         dataset = tf.data.Dataset.zip((dataset,y_dataset))
 
-    dataset = dataset.shuffle(buffer_size=1024)
+    #dataset = dataset.shuffle(buffer_size=1024)
+    dataset = dataset.shuffle(buffer_size=train_dataset_size)
 
     if prep.multitask:
         dataset = dataset.map(prep.preprocess_triplets_mt)
