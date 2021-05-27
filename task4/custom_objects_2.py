@@ -319,7 +319,7 @@ class SiameseModel7(Model):
     def _compute_triplet_loss(self,d_pred,y_true):
         ap_distance,an_distance = d_pred
         triplet_loss = ap_distance - an_distance
-        y_true = tf.reshape(y_true,shape=y_pred.shape)
+        y_true = tf.reshape(y_true,shape=triplet_loss.shape)
         y_true = tf.cast(y_true,tf.float32)
         triplet_loss = tf.math.multiply(triplet_loss,(y_true*2.0)-1.0)
         triplet_loss = tf.maximum(triplet_loss + self.margin, 0.0)
@@ -327,10 +327,10 @@ class SiameseModel7(Model):
 
     def _compute_binary_loss(self,d_pred,y_true):
         ap_distance,an_distance = d_pred
-        y_true = tf.reshape(y_true,shape=y_pred.shape)
-        y_true = tf.cast(y_true,tf.float32)
         Z = tf.math.exp(-1.0*an_distance)+tf.math.exp(-1.0*ap_distance)
         phat = tf.math.exp(-1.0*ap_distance)/Z
+        y_true = tf.reshape(y_true,shape=phat.shape)
+        y_true = tf.cast(y_true,tf.float32)
         bce = -y_true*tf.math.log(phat)-(1-y_true)*tf.math.log(1-phat)
         return bce
 
