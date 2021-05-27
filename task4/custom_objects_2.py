@@ -121,13 +121,13 @@ class SiameseModel5(Model):
 
         y_true = tf.cast(y_true,tf.float32)
         triplet_loss = tf.math.multiply(triplet_loss,y_true)
-
+        #(+) "Ceil to 1"
         return triplet_loss
 
     def _compute_binary_loss(self,d_pred,y_true):
         an_distance,ap_distance = d_pred
         Z = tf.math.exp(-1.0*an_distance)+tf.math.exp(-1.0*ap_distance)
-        phat = tf.math.exp(-1.0*an_distance)/Z
+        phat = tf.math.exp(-1.0*ap_distance)/Z
         bce = self.bce_op(y_true,phat)
         return bce
 
