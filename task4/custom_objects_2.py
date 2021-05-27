@@ -120,7 +120,9 @@ class SiameseModel5(Model):
         triplet_loss = tf.maximum(triplet_loss + self.margin, 0.0)
 
         y_true = tf.cast(y_true,tf.float32)
+        y_true_sum = tf.reduce_sum(y_true)
         triplet_loss = tf.math.multiply(triplet_loss,y_true)
+        triplet_loss = tf.reduce_sum(triplet_loss)/y_true_sum
         #(+) "Ceil to 1"
         return triplet_loss
 
