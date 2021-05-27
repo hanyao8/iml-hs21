@@ -117,6 +117,15 @@ class SiameseModel5(Model):
     def _compute_triplet_loss(self,d_pred,y_true):
         an_distance,ap_distance = d_pred
         triplet_loss = ap_distance - an_distance
+
+        y_true = tf.cast(y_true,tf.float32)
+        triplet_loss = tf.math.multiply(triplet_loss,(y_true*2.0)-1.0)
+        triplet_loss = tf.maximum(triplet_loss + self.margin, 0.0)
+        return triplet_loss
+
+    def _compute_triplet_loss_2(self,d_pred,y_true):
+        an_distance,ap_distance = d_pred
+        triplet_loss = ap_distance - an_distance
         triplet_loss = tf.maximum(triplet_loss + self.margin, 0.0)
 
         y_true = tf.cast(y_true,tf.float32)
