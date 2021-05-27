@@ -230,8 +230,6 @@ class SiameseModel6(Model):
 
 
 
-
-
 class SiameseModel7(Model):
     def __init__(self, siamese_network, margin=0.5, mt_weights=[]):
         super(SiameseModel7, self).__init__()
@@ -265,7 +263,6 @@ class SiameseModel7(Model):
             x,y = data
         else:
             x = data
-
         with tf.GradientTape() as tape:
             ap_distance, an_distance = self.siamese_network(x)
             d_pred = (ap_distance,an_distance)
@@ -315,11 +312,12 @@ class SiameseModel7(Model):
                 "binary_loss": self.binary_loss_tracker.result()
                 }
 
-
     def _compute_triplet_loss(self,d_pred,y_true):
         ap_distance,an_distance = d_pred
         triplet_loss = ap_distance - an_distance
-        y_true = tf.reshape(y_true,shape=triplet_loss.shape)
+        #self.test1 = d_pred
+        #self.test2 = y_true
+        y_true = tf.reshape(y_true,shape=[-1,1])
         y_true = tf.cast(y_true,tf.float32)
         triplet_loss = tf.math.multiply(triplet_loss,(y_true*2.0)-1.0)
         triplet_loss = tf.maximum(triplet_loss + self.margin, 0.0)
@@ -329,7 +327,7 @@ class SiameseModel7(Model):
         ap_distance,an_distance = d_pred
         Z = tf.math.exp(-1.0*an_distance)+tf.math.exp(-1.0*ap_distance)
         phat = tf.math.exp(-1.0*ap_distance)/Z
-        y_true = tf.reshape(y_true,shape=phat.shape)
+        y_true = tf.reshape(y_true,shape=[-1,1])
         y_true = tf.cast(y_true,tf.float32)
         bce = -y_true*tf.math.log(phat)-(1-y_true)*tf.math.log(1-phat)
         return bce
@@ -342,7 +340,7 @@ class SiameseModel7(Model):
         ap_distance,an_distance = d_pred
         y_pred = an_distance - ap_distance
         y_pred = tf.math.sign(y_pred)
-        y_true = tf.reshape(y_true,shape=y_pred.shape)
+        y_true = tf.reshape(y_true,shape=[-1,1])
         y_true = tf.cast(y_true,tf.float32)
         y_true = y_true*2.0-1.0
         acc = tf.multiply(y_pred,y_true)
@@ -353,3 +351,5 @@ class SiameseModel7(Model):
     def metrics(self):
         return [self.loss_tracker,self.acc_tracker,
                 self.triplet_loss_tracker,self.binary_loss_tracker]
+
+
