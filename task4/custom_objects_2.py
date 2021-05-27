@@ -179,7 +179,7 @@ class SiameseModel6(Model):
     """
 
     def __init__(self, siamese_network, margin=0.5):
-        super(SiameseModel2, self).__init__()
+        super(SiameseModel6, self).__init__()
         self.siamese_network = siamese_network
         self.margin = margin
         self.loss_tracker = metrics.Mean(name="loss")
