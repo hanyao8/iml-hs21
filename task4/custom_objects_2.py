@@ -317,16 +317,16 @@ class SiameseModel7(Model):
 
 
     def _compute_triplet_loss(self,d_pred,y_true):
-        ap_distance,an_distance = siamese_network(d_pred)
+        ap_distance,an_distance = self.siamese_network(d_pred)
         triplet_loss = ap_distance - an_distance
         y_true = tf.reshape(y_true,shape=y_pred.shape)
         y_true = tf.cast(y_true,tf.float32)
         triplet_loss = tf.math.multiply(triplet_loss,(y_true*2.0)-1.0)
-        triplet_loss = tf.maximum(triplet_loss + 1.0, 0.0)
+        triplet_loss = tf.maximum(triplet_loss + self.margin, 0.0)
         return triplet_loss
 
     def _compute_binary_loss(self,d_pred,y_true):
-        ap_distance,an_distance = siamese_network(d_pred)
+        ap_distance,an_distance = self.siamese_network(d_pred)
         y_true = tf.reshape(y_true,shape=y_pred.shape)
         y_true = tf.cast(y_true,tf.float32)
         Z = tf.math.exp(-1.0*an_distance)+tf.math.exp(-1.0*ap_distance)
