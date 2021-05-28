@@ -401,3 +401,54 @@ def create_siamese_xception_dot_3():
                 feature_cnn_3.input
                 ], outputs=(1.0-ap_dot,1.0-an_dot))
     return (siamese_network)
+
+
+def create_siamese_xception_dot_4():
+    feature_cnn_1 = Xception(weights="imagenet",
+                              input_shape=XCEPTION_INPUT_SHAPE,
+                              include_top=True)
+    feature_cnn_2 = Xception(weights="imagenet",
+                              input_shape=XCEPTION_INPUT_SHAPE,
+                              include_top=True)
+    feature_cnn_3 = Xception(weights="imagenet",
+                              input_shape=XCEPTION_INPUT_SHAPE,
+                              include_top=True)
+    
+    feature_cnns = [feature_cnn_1,feature_cnn_2,feature_cnn_3]
+    feature_cnn_names = ["anchor","pos","neg"]
+    trainable_layer_names = [
+            "batch_normalization",
+            "predictions",
+            "block14_sepconv2",
+            "block14_sepconv1",
+            "conv2d_3",
+            "block13_sepconv2",
+            "block13_sepconv1",
+            "block12_sepconv3",
+            "block12_sepconv2",
+            "block12_sepconv1",
+            "block11_sepconv3",
+            "block11_sepconv2",
+            "block11_sepconv1"
+            ]
+
+    for cnn in feature_cnns:
+        for layer in cnn.layers:
+            layer.trainable = False
+            if (layer.name)[-3:]=="_bn":
+                layer.trainable = True
+            if layer.name in trainable_layer_names:
+                layer.trainable = True
+    for i in range(len(feature_cnns)):
+        for layer in feature_cnns[i].layers:
+            layer._name = layer.name + "_" + feature_cnn_names[i]
+    
+    ap_dot = layers.Dot(axes=1)([feature_cnn_1.output,feature_cnn_2.output])
+    an_dot = layers.Dot(axes=1)([feature_cnn_1.output,feature_cnn_3.output])
+    
+    siamese_network = Model(
+        inputs=[feature_cnn_1.input,
+                feature_cnn_2.input,
+                feature_cnn_3.input
+                ], outputs=(1.0-ap_dot,1.0-an_dot))
+    return (siamese_network)

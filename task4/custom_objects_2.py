@@ -465,17 +465,14 @@ class SiameseModel10(Model):
         return loss
 
     def _compute_acc(self, d_pred, y_true):
-        self.test1.append(d_pred)
         ap_distance,an_distance = d_pred
         y_pred = an_distance - ap_distance
         y_pred = tf.math.sign(y_pred)
         y_true = tf.reshape(y_true,shape=[-1,1])
         y_true = tf.cast(y_true,tf.float32)
         y_true = y_true*2.0-1.0
-        self.test2.append(y_true)
         acc = tf.multiply(y_pred,y_true)
         acc = tf.maximum(acc,0.0)
-        self.test3.append(acc)
         return acc
 
     @property
