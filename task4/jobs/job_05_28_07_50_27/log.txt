@@ -1,0 +1,6 @@
+init
+Current job path: /content/iml-hs21/task4/jobs/job_05_28_07_50_27
+{'HOLD_FRAC': 0.01, 'POS_TRAIN_DATASET_SETTING': 'default', 'MODEL_CHOICE': 'siamese_mobilenet_dot_5', 'TARGET_SHAPE': (224, 224), 'MULTITASK_WEIGHTS': [0.0, 1.0], 'TRAIN_ADAM_STEP': 1e-06, 'TRAIN_EPOCHS': 3, 'BATCH_SIZE': 32, 'MULTITASK': True}
+{'verbose': 1, 'epochs': 3, 'steps': 2946}
+Loss: [0.6880530714988708, 0.6804381012916565, 0.6646550297737122]
+Val Loss: [0.6859776377677917, 0.6723713874816895, 0.6580876708030701]
