@@ -72,8 +72,8 @@ def train_val_dataset_from_df(train_triplets,y_train_groundtruth=[],
 
     if val_frac > 1.0e-6:
         # Let's now split our dataset in train and validation.
-        train_dataset = dataset.take(round(image_count * 0.8))
-        val_dataset = dataset.skip(round(image_count * 0.8))
+        train_dataset = dataset.take(round(image_count * (1.0-val_frac)))
+        val_dataset = dataset.skip(round(image_count * (1.0-val_frac)))
     
         train_dataset = train_dataset.batch(prep.batch_size, drop_remainder=False)
         train_dataset = train_dataset.prefetch(8)
