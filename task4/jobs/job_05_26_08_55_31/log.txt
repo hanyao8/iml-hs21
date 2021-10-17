@@ -1,0 +1,4 @@
+init
+Current job path: /Users/hchoong/Desktop/github/iml-hs21/task4/jobs/job_05_26_08_55_31
+{'HOLD_FRAC': 0.01, 'POS_TRAIN_DATASET_SETTING': 1000, 'MODEL_CHOICE': 'siamese_mobilenet_dot_3', 'TARGET_SHAPE': (224, 224), 'MULTITASK_WEIGHTS': [1.0, 1.0], 'TRAIN_ADAM_STEP': 1e-06, 'TRAIN_EPOCHS': 1, 'BATCH_SIZE': 32}
+{'HOLD_FRAC': 0.01, 'POS_TRAIN_DATASET_SETTING': 1000, 'MODEL_CHOICE': 'siamese_mobilenet_dot_3', 'TARGET_SHAPE': (224, 224), 'MULTITASK_WEIGHTS': [1.0, 1.0], 'TRAIN_ADAM_STEP': 1e-06, 'TRAIN_EPOCHS': 1, 'BATCH_SIZE': 32}
